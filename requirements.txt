@@ -2,6 +2,7 @@ Django==1.11.7
 django-appconf==1.0.2
 django-cacheops==4.0.1
 django-compressor==2.2
+django-debug-toolbar==1.8
 djangorestframework==3.7.1
 freezegun==0.3.9
 funcy==1.9.1
@@ -13,4 +14,5 @@ rcssmin==1.0.6
 redis==2.10.6
 rjsmin==1.0.12
 six==1.11.0
+sqlparse==0.2.4
 uWSGI==2.0.15
