@@ -1,0 +1,24 @@
+language: python
+python:
+  - "3.6"
+
+cache: pip
+
+addons:
+  postgresql: "9.5"
+
+install:
+  - pip install -r requirements.txt --quiet
+  - pip install coveralls
+
+before_script:
+  - psql -c "CREATE DATABASE travisci;" -U postgres
+
+env:
+ - DEBUG=True
+
+script:
+  - python manage.py test
+  - coverage run --source=bunny,api manage.py test
+
+after_success: coveralls
