@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'debug_toolbar',
-    'bunny'
+    'bunny',
+    'api'
 ]
 
 if DEBUG is False:
