@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'debug_toolbar',
     'bunny'
 ]
 
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'hiren.urls'
@@ -91,13 +93,13 @@ WSGI_APPLICATION = 'hiren.wsgi.application'
 if 'TRAVIS' in os.environ:
     DATABASES = {
         'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'travisci',
-            'USER':     'postgres',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'travisci',
+            'USER': 'postgres',
             'PASSWORD': '',
-            'HOST':     'localhost',
+            'HOST': 'localhost',
             'ATOMIC_REQUESTS': True,
-            'PORT':     '',
+            'PORT': '',
         }
     }
 else:
@@ -151,7 +153,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    'compressor.finders.CompressorFinder',
+)
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
+
+# django compress
+COMPRESS_ROOT = os.path.join(BASE_DIR, "static")
+
+COMPRESS_OFFLINE = True
+
+# media settings
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+LOGIN_URL = '/'
 
 # sentry.io
 if not DEBUG:
@@ -198,6 +219,76 @@ REST_FRAMEWORK = {
     ),
 }
 
-
+# logger
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue'
+        }
+    },
+    'formatters': {
+        'main_formatter': {
+            'format': '%(levelname)s:%(name)s: %(message)s '
+                      '(%(asctime)s; %(filename)s:%(lineno)d)',
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'main_formatter',
+        },
+        'production_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR + '/logs/main.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 7,
+            'formatter': 'main_formatter',
+            'filters': ['require_debug_false'],
+        },
+        'debug_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR + '/logs/main_debug.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 7,
+            'formatter': 'main_formatter',
+            'filters': ['require_debug_true'],
+        },
+        'null': {
+            "class": 'logging.NullHandler',
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['null', ],
+        },
+        'py.warnings': {
+            'handlers': ['null', ],
+        },
+        '': {
+            'handlers': ['console', 'production_file', 'debug_file'],
+            'level': "DEBUG",
+        },
+    }
+}
 
 
