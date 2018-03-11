@@ -11,7 +11,7 @@ olefile==0.45
 pilkit==2.0
 Pillow==5.0.0
 psycopg2==2.7.3.2
-python-dateutil==2.6.1
+python-dateutil==2.7.0
 pytz==2018.3
 raven==6.6.0
 rcssmin==1.0.6
